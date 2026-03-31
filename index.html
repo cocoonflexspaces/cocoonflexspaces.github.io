@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoresearch Master Dashboard — All Skills</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1117;
+            color: #e4e4e7;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #27272a;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; }
+        .header .date { color: #71717a; font-size: 14px; }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .summary-card .label {
+            font-size: 13px;
+            color: #71717a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .summary-card .value.green { color: #22c55e; }
+        .summary-card .value.amber { color: #f59e0b; }
+        .summary-card .value.blue { color: #3b82f6; }
+        .summary-card .value.purple { color: #8b5cf6; }
+        .summary-card .subtext {
+            font-size: 13px;
+            color: #52525b;
+            margin-top: 4px;
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .skill-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+        .skill-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .skill-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .skill-schedule {
+            font-size: 12px;
+            color: #71717a;
+            margin-top: 4px;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .badge.green { background: #22c55e20; color: #22c55e; }
+        .badge.amber { background: #f59e0b20; color: #f59e0b; }
+        .badge.blue { background: #3b82f620; color: #3b82f6; }
+        .badge.purple { background: #8b5cf620; color: #8b5cf6; }
+        .badge.red { background: #ef444420; color: #ef4444; }
+        .score-bar-container {
+            margin: 16px 0;
+        }
+        .score-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #71717a;
+            margin-bottom: 6px;
+        }
+        .score-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #27272a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .score-bar-fill.green { background: #22c55e; }
+        .score-bar-fill.amber { background: #f59e0b; }
+        .score-bar-fill.red { background: #ef4444; }
+        .checklist-mini {
+            margin-top: 12px;
+        }
+        .checklist-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid #1e1e22;
+        }
+        .checklist-row:last-child { border-bottom: none; }
+        .q-weight {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .q-weight.critical { background: #ef444420; color: #ef4444; }
+        .q-weight.high { background: #f59e0b20; color: #f59e0b; }
+        .q-weight.normal { background: #3b82f620; color: #3b82f6; }
+        .q-status {
+            flex-shrink: 0;
+            width: 20px;
+            text-align: center;
+        }
+        .q-text {
+            color: #a1a1aa;
+            flex: 1;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #27272a;
+        }
+        .meta-info {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #27272a;
+            font-size: 12px;
+            color: #52525b;
+        }
+        .meta-info span { color: #71717a; }
+        @media (max-width: 768px) {
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+            .skills-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 Autoresearch Master Dashboard</h1>
+        <div class="date">Cocoon Flex Spaces — Last updated: March 30, 2026</div>
+    </div>
+
+    <div class="summary-cards">
+        <div class="summary-card">
+            <div class="label">Monitored Skills</div>
+            <div class="value blue">17</div>
+            <div class="subtext">5 established · 12 new drafts</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Avg Score (established)</div>
+            <div class="value amber">71%</div>
+            <div class="subtext">⚠️ 2 red alerts — radar + website review</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Total Rounds</div>
+            <div class="value">3</div>
+            <div class="subtext">Weekly review: 3 rounds · others: baselines</div>
+        </div>
+        <div class="summary-card">
+            <div class="label">Red Alerts Today</div>
+            <div class="value" style="color:#ef4444">2</div>
+            <div class="subtext">Radar (Slack fail) · Website review (1st run)</div>
+        </div>
+    </div>
+
+    <div class="section-title">Skills Overview</div>
+
+    <div class="skills-grid">
+        <!-- Weekly Website Review -->
+        <div class="skill-card">
+            <div class="skill-header">
+                <div>
+                    <div class="skill-name">📊 Weekly Website Review</div>
+                    <div class="skill-schedule">Mon 8 AM → #project-seosem</div>
+                </div>
+                <div class="badge red">44% ⚠️</div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Score (Mar 30 — first real run)</span><span>44 / 100</span></div>
+                <div class="score-bar-bg"><div class="score-bar-fill red" style="width: 44%"></div></div>
+            </div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">Live data from all sources (CWV API quota hit)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Priority tiers in every section</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Specific WoW numbers</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Top 5 from 3+ sections</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Actionable tags on all items</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">References prior feedback (first run — expected)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">Tracks implemented actions (first run — expected)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">Shows metric changes after fixes (first run)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">Credits team contributions (first run)</span></div>
+            </div>
+            <div class="meta-info">
+                <span>Note:</span> Core quality Q2–Q5 = 100%. Q6–Q9 fail expected on first run. Fix needed: Add "read previous Canvas" step. · <span>Rounds:</span> 3 (67%→83%→92%→44% first real run)
+            </div>
+        </div>
+
+        <!-- Daily Social Media Inbound Radar -->
+        <div class="skill-card">
+            <div class="skill-header">
+                <div>
+                    <div class="skill-name">📡 Social Media Inbound Radar</div>
+                    <div class="skill-schedule">Weekdays noon → #project-leadsmanagement</div>
+                </div>
+                <div class="badge red">50% ⚠️ ↓19%</div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Mar 30 (prev: 69% Mar 28)</span><span>50 / 100</span></div>
+                <div class="score-bar-bg"><div class="score-bar-fill red" style="width: 50%"></div></div>
+            </div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">All 4 categories searched across 10 platforms</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight critical">3x</span><span class="q-text">All cited posts from last 7 days (Jan LinkedIn + 2025 Splacer)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight high">2x</span><span class="q-text">Direct links to source posts (not delivered to Slack)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Specific next step per opportunity</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight high">2x</span><span class="q-text">Posted to #leadsmanagement — FAILED (saved to local file!)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Hot/warm/cold distinction</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Honest "quiet day" acknowledgment</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Lead quality tags present</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">Team feedback section (not delivered to Slack)</span></div>
+            </div>
+            <div class="meta-info">
+                <span>Root cause:</span> Browser not auth'd to Slack — report saved to local file. Fix: switch to Slack MCP for delivery. · <span>Scores:</span> 69% Mar 28 → 50% Mar 30
+            </div>
+        </div>
+
+        <!-- Monday Team Prios Reminder -->
+        <div class="skill-card">
+            <div class="skill-header">
+                <div>
+                    <div class="skill-name">📢 Team Prios Reminder</div>
+                    <div class="skill-schedule">Mon 9 AM → #project-weekly-priorities</div>
+                </div>
+                <div class="badge amber">82% — first baseline</div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Mar 30 — first baseline</span><span>82 / 100</span></div>
+                <div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 82%"></div></div>
+            </div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight critical">3x</span><span class="q-text">Posted before 9:30 AM (ran at 10:38 AM — ~1hr system delay)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Tags all 4 team members by Slack ID</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Message actually sent</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Fun opener (Casa Aurora Vibe.co shoot shoutout)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">All 5 ClickUp actions listed</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">OKR connection reminder</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Asks to reply in thread</span></div>
+            </div>
+            <div class="meta-info">
+                <span>First baseline:</span> 82%. Timing miss likely a system delay (all Monday skills ran ~1hr late). Content quality was excellent.
+            </div>
+        </div>
+
+        <!-- Monday Prios Tracker -->
+        <div class="skill-card">
+            <div class="skill-header">
+                <div>
+                    <div class="skill-name">🔍 Prios Tracker</div>
+                    <div class="skill-schedule">Mon 11 AM → Eduard DM</div>
+                </div>
+                <div class="badge green">100% 🎉 PERFECT</div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Mar 30 — first baseline + perfect score!</span><span>100 / 100</span></div>
+                <div class="score-bar-bg"><div class="score-bar-fill green" style="width: 100%"></div></div>
+            </div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Checks reminder thread for confirmations</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Pulls all 4 ClickUp lists</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Shows who has/hasn't updated (all 4 checked in!)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Task counts + reports hours as missing</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Red flags flagged for all 4 members</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Pro tip for Piero: required time estimate field</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Zoe personality + ㅤ spacers throughout</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Supportive, coaching tone</span></div>
+            </div>
+            <div class="meta-info">
+                <span>Milestone:</span> First baseline AND first perfect score! All 8 questions passed. Elite territory. 🎉
+            </div>
+        </div>
+
+        <!-- Monday Eduard Prios -->
+        <div class="skill-card">
+            <div class="skill-header">
+                <div>
+                    <div class="skill-name">🎯 Eduard's Priorities</div>
+                    <div class="skill-schedule">Mon 9:30 AM → Eduard DM (private)</div>
+                </div>
+                <div class="badge amber">80% — first baseline</div>
+            </div>
+            <div class="score-bar-container">
+                <div class="score-bar-label"><span>Mar 30 — first baseline</span><span>80 / 100</span></div>
+                <div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 80%"></div></div>
+            </div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Pulled 60 current ClickUp tasks</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Organized by status (Complete / In Progress / To Do)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Flags 7+ carry-over "potentially stuck" tasks</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">3 specific questions to complete prios</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Tip: set estimates before starting tasks</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight high">2x</span><span class="q-text">Sent before 10 AM (arrived 10:40 AM — ~1hr delay)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight normal">1x</span><span class="q-text">Reports hours as unknown (no estimates set)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight normal">1x</span><span class="q-text">No explicit >2hr task subtask check</span></div>
+            </div>
+            <div class="meta-info">
+                <span>First baseline:</span> 80%. Q6 timing and Q8 subtask check are the gaps. Same system delay issue as other Monday skills.
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">🆕 New Skills — Draft Checklists (Pending Eduard's Review)</div>
+    <div style="background:#1c1c1f;border:1px solid #3f3f46;border-radius:10px;padding:12px 18px;margin-bottom:20px;font-size:13px;color:#a1a1aa;">
+      These 12 tasks were detected today without quality checklists. Draft checklists have been auto-generated and scoring has begun — but results are marked as <strong style="color:#8b5cf6">DRAFT</strong> until Eduard reviews the questions. All changes require Eduard's approval.
+    </div>
+
+    <div class="skills-grid">
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">🎯 Zoe Morning Report</div><div class="skill-schedule">Daily 7 AM → Eduard DM</div></div><div class="badge amber">69% draft</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Mar 30 — first score (draft)</span><span>69 / 100</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 69%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight critical">3x</span><span class="q-text">Pulls live Polymarket portfolio (APIs blocked)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Market prices from real sources</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Conviction + position sizes per pick</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight high">2x</span><span class="q-text">Delivered before 8 AM (arrived 8:20 AM)</span></div>
+            </div>
+            <div class="meta-info"><span>Issue:</span> Polymarket API block prevents portfolio section. Fix: allowlist APIs in Cowork settings.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">⚡ Zoe Position Watch</div><div class="skill-schedule">Every 4 hours → Eduard DM</div></div><div class="badge red">0% draft 🚨</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Mar 30 — FAILED (infrastructure)</span><span>0 / 100</span></div><div class="score-bar-bg"><div class="score-bar-fill red" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight critical">3x</span><span class="q-text">Pulls current Polymarket positions (APIs blocked)</span></div>
+                <div class="checklist-row"><span class="q-status">❌</span><span class="q-weight critical">3x</span><span class="q-text">Delivers alert via Slack DM (no Slack MCP in session)</span></div>
+            </div>
+            <div class="meta-info"><span>Root cause:</span> Polymarket APIs blocked + no Slack MCP in session. Both need fixing before this task has any value.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">🐋 Zoe Whale Tracker</div><div class="skill-schedule">Every 2 hours → Eduard DM</div></div><div class="badge purple">Draft — running</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Still running as of quality check</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Data from 3+ whale wallets</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Delivers via Slack DM</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Polymarket APIs blocked on prior runs. Session still running — check tomorrow's report for score.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">💎 Zoe Crypto Yield Optimizer</div><div class="skill-schedule">Mon 8 AM → Eduard DM</div></div><div class="badge green">100% draft 🎉</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Mar 30 — first draft score</span><span>100 / 100</span></div><div class="score-bar-bg"><div class="score-bar-fill green" style="width: 100%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">All 5 holdings covered (BTC/ETH/SOL/DOGE/BAT)</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight critical">3x</span><span class="q-text">Real current yield rates</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Two-tier structure + step-by-step instructions</span></div>
+                <div class="checklist-row"><span class="q-status">✅</span><span class="q-weight high">2x</span><span class="q-text">Projected earnings table + highlight + risk notes</span></div>
+            </div>
+            <div class="meta-info"><span>Milestone:</span> First draft score AND 100%. This skill is performing beautifully out of the gate. 🎉</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">📊 Zoe Crypto Portfolio</div><div class="skill-schedule">Daily 7:30 AM → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score logged yet</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Real prices for all holdings</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Delivered via Slack DM</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Uses Deribit MCP for prices. First score pending review.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">🎯 Zoe Kalshi Scanner</div><div class="skill-schedule">Daily 8 AM → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score logged yet</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Uses Kalshi MCP tools for real prices</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Checks balance + 3+ opportunities with edge reasoning</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Has real Kalshi MCP access — advantage over Polymarket tasks. Balance ~$150.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">⚡ Zoe Kalshi Alerts</div><div class="skill-schedule">1 PM + 5 PM daily → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score logged yet</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Scans for moves since morning</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Flags markets expiring within 48h</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Runs twice daily. Must differentiate from morning scanner, not just repeat it.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">📈 Zoe Stock Screener</div><div class="skill-schedule">Sunday 8 AM → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score yet (Sunday only)</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">3 categories: momentum / undervalued / dividend</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Real tickers + buy zone / target / stop per pick</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Mar 29 test run showed solid market context + 3 momentum picks with proper setups. First real score Sunday.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">📞 Zoe Covered Calls</div><div class="skill-schedule">Wednesday 9 AM → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score yet (Wednesday only)</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">3+ setups with real option chain data</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">VIX check + annualized yield + risk ratings</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Mar 29 test showed VZ, KO, WFC, INTC, COP, PLTR. Need to verify option prices are from real data. First real score Wednesday.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">🪂 Zoe Airdrop Hunter</div><div class="skill-schedule">Wednesday 9 AM → Eduard DM</div></div><div class="badge purple">Draft — no score yet</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>No score yet (Wednesday only)</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">3+ qualifying opportunities Eduard can act on</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">All cited airdrops current (not expired)</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Mar 29 test: Polymarket POLY, Polygon airdrops, Lume Network. Strong report. First real score Wednesday.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">🏢 Space Lead Scan</div><div class="skill-schedule">Every 15 min → #project-space-leads</div></div><div class="badge purple">Draft — sample scoring</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Sampled periodically (15-min cadence)</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Only processes new tickets (no re-posts)</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Correctly identifies leads vs. non-leads</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Runs every 15 min — quality monitor will sample 1-2 posts/day rather than every cycle.</div>
+        </div>
+
+        <div class="skill-card">
+            <div class="skill-header"><div><div class="skill-name">💬 Space Lead Slack Monitor</div><div class="skill-schedule">Every 15 min → acts on Eduard's replies</div></div><div class="badge purple">Draft — sample scoring</div></div>
+            <div class="score-bar-container"><div class="score-bar-label"><span>Sampled periodically (still running today)</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill amber" style="width: 0%"></div></div></div>
+            <div class="checklist-mini">
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Correctly parses Eduard's instructions</span></div>
+                <div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">No duplicate action on already-processed instructions</span></div>
+            </div>
+            <div class="meta-info"><span>Note:</span> Session was still running as of quality check. Most critical risk: acting on same instruction twice.</div>
+        </div>
+    </div>
+
+    <div class="section-title">Autoresearch Standards (Applied to All Skills)</div>
+
+    <div class="skills-grid">
+        <div class="skill-card full-width">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #3b82f6;">📐 Scoring</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • Weighted formula: passing weights / total weights × 100%<br>
+                        • Critical = 3x, High = 2x, Normal = 1x<br>
+                        • 5 dimensions: Completeness, Accuracy, Actionability, Timeliness, Format<br>
+                        • Minimum bar: 75% before going live
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #22c55e;">🔄 Improvement Loop</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • One change per round (never two)<br>
+                        • Keep if score ↑, revert if ↓ or flat<br>
+                        • Stop at: 90%+ for 3 rounds, or 8 rounds no improvement<br>
+                        • Log everything in changelog
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #8b5cf6;">🧠 Meta-Autoresearch</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • Triggers: plateau (3 rounds &lt;5%), feedback gap, every 4 weeks<br>
+                        • 5 analyses: stale Qs, impossible Qs, gaps, weight recal, proposals<br>
+                        • Checklist changes are versioned and reversible<br>
+                        • Re-baseline after any checklist change
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Formatting Standards (Applied to All Skills)</div>
+
+    <div class="skills-grid">
+        <div class="skill-card full-width">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #f59e0b;">🎨 Zoe Personality</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • Every message starts with "Hey it's Zoe! 👋"<br>
+                        • Warm, direct, branded tone<br>
+                        • Emojis per section (📊🔥🎯)<br>
+                        • "Do NOT deviate from this format"
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #f59e0b;">📐 Slack Layout</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • ㅤ spacers (U+3164) between sections<br>
+                        • ━━━ dividers for major sections<br>
+                        • Bold headers with relevant emoji<br>
+                        • Lead tags: 🔥 Hot / 🟡 Warm / 🧊 Cold
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #f59e0b;">🔁 Feedback Loop</div>
+                    <div style="font-size: 13px; color: #a1a1aa; line-height: 1.7;">
+                        • Every message ends with feedback ask<br>
+                        • Thread replies for tracking<br>
+                        • Sequential execution (not parallel)<br>
+                        • Locked templates prevent drift
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
