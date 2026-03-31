@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Skills Dashboard — Eduard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1117;
+            color: #e4e4e7;
+            padding: 24px;
+            min-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #27272a;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; }
+        .header .date { color: #71717a; font-size: 14px; }
+        .private-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #8b5cf620;
+            color: #8b5cf6;
+            border: 1px solid #8b5cf640;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+            letter-spacing: 0.5px;
+        }
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .summary-card .label {
+            font-size: 13px;
+            color: #71717a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .summary-card .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .summary-card .value.green { color: #22c55e; }
+        .summary-card .value.amber { color: #f59e0b; }
+        .summary-card .value.blue { color: #3b82f6; }
+        .summary-card .value.purple { color: #8b5cf6; }
+        .summary-card .subtext {
+            font-size: 13px;
+            color: #52525b;
+            margin-top: 4px;
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .skill-card {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+        .skill-card.full-width { grid-column: 1 / -1; }
+        .skill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .skill-name { font-size: 16px; font-weight: 600; }
+        .skill-schedule { font-size: 12px; color: #71717a; margin-top: 4px; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+        .badge.green { background: #22c55e20; color: #22c55e; }
+        .badge.amber { background: #f59e0b20; color: #f59e0b; }
+        .badge.purple { background: #8b5cf620; color: #8b5cf6; }
+        .badge.red { background: #ef444420; color: #ef4444; }        .score-bar-container { margin: 16px 0; }
+        .score-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: #71717a; margin-bottom: 6px; }
+        .score-bar-bg { width: 100%; height: 8px; background: #27272a; border-radius: 4px; overflow: hidden; }
+        .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .score-bar-fill.green { background: #22c55e; }
+        .score-bar-fill.amber { background: #f59e0b; }
+        .score-bar-fill.red { background: #ef4444; }
+        .score-bar-fill.purple { background: #8b5cf6; }
+        .checklist-mini { margin-top: 12px; }
+        .checklist-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #1e1e22; }
+        .checklist-row:last-child { border-bottom: none; }
+        .q-weight { font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: 600; flex-shrink: 0; }
+        .q-weight.critical { background: #ef444420; color: #ef4444; }
+        .q-weight.high { background: #f59e0b20; color: #f59e0b; }
+        .q-weight.normal { background: #3b82f620; color: #3b82f6; }
+        .q-status { flex-shrink: 0; width: 20px; text-align: center; }
+        .q-text { color: #a1a1aa; flex: 1; }
+        .section-title { font-size: 18px; font-weight: 600; margin: 32px 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #27272a; }
+        .meta-info { margin-top: 12px; padding-top: 12px; border-top: 1px solid #27272a; font-size: 12px; color: #52525b; }
+        .meta-info span { color: #71717a; }
+        .category-label { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 600; margin-bottom: 8px; letter-spacing: 0.4px; }
+        .category-label.crypto { background: #f59e0b15; color: #f59e0b; border: 1px solid #f59e0b30; }
+        .category-label.kalshi { background: #8b5cf615; color: #8b5cf6; border: 1px solid #8b5cf630; }
+        .category-label.stocks { background: #3b82f615; color: #3b82f6; border: 1px solid #3b82f630; }
+        @media (max-width: 768px) { .summary-cards { grid-template-columns: repeat(2, 1fr); } .skills-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div><h1>📈 Personal Skills Dashboard <span class="private-badge">🔒 Private</span></h1></div>
+        <div class="date">Eduard — Last updated: March 31, 2026</div>
+    </div>
+    <div class="summary-cards">
+        <div class="summary-card"><div class="label">Personal Skills</div><div class="value purple">10</div><div class="subtext">5 crypto · 2 Kalshi · 3 stocks</div></div>
+        <div class="summary-card"><div class="label">Active / Scoring</div><div class="value blue">0</div><div class="subtext">All pending baseline</div></div>
+        <div class="summary-card"><div class="label">Avg Score</div><div class="value" style="color:#52525b">—</div><div class="subtext">No baselines yet</div></div>
+        <div class="summary-card"><div class="label">Red Alerts</div><div class="value green">0</div><div class="subtext">Clean</div></div>
+    </div>    <div class="section-title">🪙 Crypto Skills</div>
+    <div class="skills-grid">
+        <div class="skill-card"><div class="category-label crypto">CRYPTO · DAILY</div><div class="skill-header"><div><div class="skill-name">☀️ Morning Report</div><div class="skill-schedule">Daily morning → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">BTC, ETH, SOL prices + 24h % change</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Portfolio P&amp;L vs. yesterday</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Top overnight news / macro catalyst</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">1 actionable insight for the day</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Fear &amp; Greed index noted</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+        <div class="skill-card"><div class="category-label crypto">CRYPTO · ON-DEMAND</div><div class="skill-header"><div><div class="skill-name">💼 Crypto Portfolio</div><div class="skill-schedule">On-demand → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Full portfolio snapshot with current prices</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Total value + allocation %</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Unrealized P&amp;L per position</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Rebalancing suggestions if needed</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Risk flag if any coin &gt;40%</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>        <div class="skill-card"><div class="category-label crypto">CRYPTO · WEEKLY</div><div class="skill-header"><div><div class="skill-name">📊 Crypto Yield Optimizer</div><div class="skill-schedule">Weekly → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Top yield opportunities ranked by APY + risk</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Protocol risk level flagged</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Staking vs. LP vs. lending compared</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Specific entry steps for top pick</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Notes exits/changes from prior week</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+        <div class="skill-card"><div class="category-label crypto">CRYPTO · ALERTS</div><div class="skill-header"><div><div class="skill-name">🐋 Whale Tracker</div><div class="skill-schedule">Triggered on large movements → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Wallet address + transaction size cited</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Direction (buy/sell/transfer) identified</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Historical pattern for this wallet noted</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Potential price impact assessed</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Suggested action (watch/act/ignore)</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>        <div class="skill-card"><div class="category-label crypto">CRYPTO · WEEKLY</div><div class="skill-header"><div><div class="skill-name">🪂 Airdrop Hunter</div><div class="skill-schedule">Weekly → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Top 5 opportunities with eligibility criteria</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Deadline / snapshot date for each</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Estimated value range per opportunity</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Effort-to-reward ratio rated</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Scam risk assessment per project</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+    </div>
+    <div class="section-title">🎯 Prediction Markets (Kalshi)</div>
+    <div class="skills-grid">
+        <div class="skill-card"><div class="category-label kalshi">KALSHI · DAILY</div><div class="skill-header"><div><div class="skill-name">🔍 Kalshi Scanner</div><div class="skill-schedule">Daily → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Top 5 markets by volume + edge opportunity</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Probability vs. consensus mismatch flagged</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Resolution date and liquidity noted</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Suggested position and sizing rationale</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Correlated positions flagged</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>        <div class="skill-card"><div class="category-label kalshi">KALSHI · ALERTS</div><div class="skill-header"><div><div class="skill-name">🔔 Kalshi Alerts</div><div class="skill-schedule">Triggered on price moves → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Market + price move that triggered alert</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Current position status for that market</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Recommended action (hold/add/exit)</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Catalyst that drove the move identified</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Time sensitivity noted</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+    </div>
+    <div class="section-title">📉 Stocks</div>
+    <div class="skills-grid">
+        <div class="skill-card"><div class="category-label stocks">STOCKS · WEEKLY</div><div class="skill-header"><div><div class="skill-name">🔭 Stock Screener</div><div class="skill-schedule">Weekly → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Top 5 stocks with entry thesis</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Key fundamentals cited (P/E, growth, moat)</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Technical setup noted (support, trend, volume)</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Risk/reward ratio estimated</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Upcoming catalysts noted</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>        <div class="skill-card"><div class="category-label stocks">STOCKS · WEEKLY</div><div class="skill-header"><div><div class="skill-name">📋 Covered Calls</div><div class="skill-schedule">Weekly → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Best covered call candidates from holdings</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Strike + expiry + premium for each</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Annualized yield % calculated</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Assignment risk assessed</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Open positions nearing expiry noted</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+        <div class="skill-card"><div class="category-label stocks">STOCKS + CRYPTO · ALERTS</div><div class="skill-header"><div><div class="skill-name">👁️ Position Watch</div><div class="skill-schedule">Triggered on threshold moves → Eduard DM</div></div><div class="badge purple">Draft — no baseline</div></div><div class="score-bar-container"><div class="score-bar-label"><span>Awaiting first scored run</span><span>N/A</span></div><div class="score-bar-bg"><div class="score-bar-fill purple" style="width:0%"></div></div></div><div class="checklist-mini"><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Position name + % move that triggered alert</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight critical">3x</span><span class="q-text">Current P&amp;L and distance from stop-loss</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Suggested action (hold/trim/exit)</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight high">2x</span><span class="q-text">Reason for the move identified</span></div><div class="checklist-row"><span class="q-status">⬜</span><span class="q-weight normal">1x</span><span class="q-text">Portfolio impact % noted</span></div></div><div class="meta-info"><span>Status:</span> Draft. Needs baseline before going live.</div></div>
+    </div>    <div class="section-title">Autoresearch Standards (All Personal Skills)</div>
+    <div class="skills-grid">
+        <div class="skill-card full-width">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;">
+                <div><div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#8b5cf6;">📐 Scoring</div><div style="font-size:13px;color:#a1a1aa;line-height:1.7;">• Weighted formula: passing weights / total weights × 100%<br>• Critical = 3x, High = 2x, Normal = 1x<br>• 5 dimensions: Completeness, Accuracy, Actionability, Timeliness, Format<br>• Minimum bar: 75% before going live</div></div>
+                <div><div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#22c55e;">🔄 Improvement Loop</div><div style="font-size:13px;color:#a1a1aa;line-height:1.7;">• One change per round (never two)<br>• Keep if score ↑, revert if ↓ or flat<br>• Stop at: 90%+ for 3 rounds, or 8 rounds no improvement<br>• Log everything in changelog</div></div>
+                <div><div style="font-size:14px;font-weight:600;margin-bottom:12px;color:#f59e0b;">🔐 Privacy Note</div><div style="font-size:13px;color:#a1a1aa;line-height:1.7;">• These skills run privately to Eduard DM only<br>• No Cocoon team visibility<br>• Separate quality monitor from Cocoon skills<br>• Scored independently — no Cocoon dashboard impact</div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
